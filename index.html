@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>오라이언 캐릭터 프로필</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Nunito:wght@400;600;700;800;900&family=Caveat:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #F5C842;
+    --gold-light: #FFE680;
+    --gold-dark: #D4A017;
+    --grass: #5DBB5A;
+    --grass-dark: #3D8A3A;
+    --grass-light: #8FD68C;
+    --sky: #C9EBF7;
+    --cream: #FFFBEF;
+    --pink: #FF9EC4;
+    --pink-light: #FFD6E8;
+    --peach: #FFD5A8;
+    --brown: #8B5E3C;
+    --text-dark: #3D2B1F;
+    --white: #FFFFFF;
+    --shadow: rgba(90,55,20,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: var(--sky);
+    min-height: 100vh;
+    overflow-x: hidden;
+    color: var(--text-dark);
+  }
+
+  /* ===== ANIMATED SKY + GRASS BACKGROUND ===== */
+  .bg-scene {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .sky-layer {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, #B8E4F5 0%, #D9F0FB 45%, #EAF7FF 65%, #A8D96C 65%, #7DC45A 72%, #5DBB5A 80%, #3D8A3A 100%);
+  }
+
+  /* Sun */
+  .sun {
+    position: absolute;
+    top: 5%;
+    right: 10%;
+    width: 80px;
+    height: 80px;
+    background: radial-gradient(circle, #FFE84D 40%, #FFD600 70%, rgba(255,214,0,0) 100%);
+    border-radius: 50%;
+    box-shadow: 0 0 60px 20px rgba(255,220,0,0.4);
+    animation: sunPulse 4s ease-in-out infinite;
+  }
+  @keyframes sunPulse { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+
+  /* Clouds */
+  .cloud {
+    position: absolute;
+    background: rgba(255,255,255,0.85);
+    border-radius: 50px;
+    animation: floatCloud linear infinite;
+  }
+  .cloud::before,.cloud::after {
+    content:'';position:absolute;background:rgba(255,255,255,0.85);border-radius:50%;
+  }
+  .c1{width:120px;height:38px;top:8%;left:-140px;animation-duration:30s;animation-delay:0s;}
+  .c1::before{width:60px;height:60px;top:-30px;left:15px;}
+  .c1::after{width:45px;height:45px;top:-22px;left:55px;}
+  .c2{width:80px;height:28px;top:14%;left:-100px;animation-duration:22s;animation-delay:-10s;}
+  .c2::before{width:40px;height:40px;top:-20px;left:10px;}
+  .c2::after{width:30px;height:30px;top:-15px;left:38px;}
+  .c3{width:100px;height:32px;top:5%;left:-120px;animation-duration:26s;animation-delay:-6s;}
+  .c3::before{width:50px;height:50px;top:-25px;left:12px;}
+  .c3::after{width:36px;height:36px;top:-18px;left:48px;}
+  @keyframes floatCloud { from{transform:translateX(0)} to{transform:translateX(120vw)} }
+
+  /* Grass blades */
+  .grass-strip {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 120px;
+  }
+  .blade {
+    position: absolute;
+    bottom: 0;
+    width: 6px;
+    background: linear-gradient(to top, #3D8A3A, #7DC45A, #A8D96C);
+    border-radius: 3px 3px 0 0;
+    transform-origin: bottom center;
+    animation: sway 2.5s ease-in-out infinite alternate;
+  }
+  @keyframes sway {
+    0%{transform:rotate(-8deg);}
+    100%{transform:rotate(8deg);}
+  }
+
+  /* Flowers */
+  .flower {
+    position: absolute;
+    bottom: 10px;
+    font-size: 20px;
+    animation: flowerBob 3s ease-in-out infinite alternate;
+  }
+  @keyframes flowerBob { 0%{transform:translateY(0) rotate(-5deg);} 100%{transform:translateY(-6px) rotate(5deg);} }
+
+  /* Floating hearts */
+  .heart {
+    position: fixed;
+    font-size: 1.4rem;
+    animation: heartFloat linear infinite;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0;
+  }
+  @keyframes heartFloat {
+    0% { transform: translateY(100vh) rotate(0deg) scale(0.5); opacity:0; }
+    10% { opacity: 0.85; }
+    90% { opacity: 0.7; }
+    100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity:0; }
+  }
+
+  /* ===== MAIN CONTENT ===== */
+  .wrapper {
+    position: relative;
+    z-index: 10;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 30px 16px 100px;
+  }
+
+  /* Header */
+  .profile-header {
+    text-align: center;
+    margin-bottom: 28px;
+    animation: fadeDown 0.8s ease both;
+  }
+  @keyframes fadeDown { from{opacity:0;transform:translateY(-30px)} to{opacity:1;transform:translateY(0)} }
+
+  .profile-title {
+    font-family: 'Pacifico', cursive;
+    font-size: clamp(2rem, 8vw, 3.2rem);
+    color: var(--gold-dark);
+    text-shadow: 3px 3px 0 var(--white), 5px 5px 0 var(--gold);
+    line-height: 1.1;
+    margin-bottom: 4px;
+  }
+  .profile-subtitle {
+    font-family: 'Caveat', cursive;
+    font-size: 1.1rem;
+    color: var(--grass-dark);
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+
+  /* Profile picture card */
+  .pic-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    background: linear-gradient(135deg, #FFFBEF 0%, #FFF8D0 100%);
+    border: 4px solid var(--gold);
+    border-radius: 28px;
+    padding: 24px 20px;
+    margin-bottom: 20px;
+    box-shadow: 0 8px 30px var(--shadow), 0 0 0 8px rgba(245,200,66,0.12);
+    animation: fadeUp 0.8s 0.1s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+  .pic-card::before {
+    content: '🐾';
+    position: absolute;
+    font-size: 80px;
+    opacity: 0.05;
+    top: -10px;
+    right: -10px;
+  }
+
+  .profile-pic-wrap {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    flex-shrink: 0;
+  }
+  .profile-pic-wrap::before {
+    content:'';
+    position:absolute;
+    inset:-6px;
+    border-radius:50%;
+    background: conic-gradient(var(--gold), var(--pink), var(--gold-light), var(--pink), var(--gold));
+    animation: spinRing 6s linear infinite;
+    z-index:0;
+  }
+  @keyframes spinRing { to{transform:rotate(360deg)} }
+
+  .profile-pic-wrap img {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 50%;
+    border: 4px solid var(--white);
+    display: block;
+  }
+
+  .profile-core {
+    text-align: center;
+  }
+  .profile-core h2 {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.5rem;
+    color: var(--brown);
+    margin-bottom: 4px;
+  }
+  .core-sub {
+    font-size: 0.8rem;
+    color: #9B7054;
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 7px;
+    justify-content: center;
+  }
+  .badge {
+    background: linear-gradient(135deg, var(--gold-light), var(--gold));
+    color: var(--brown);
+    font-size: 0.72rem;
+    font-weight: 800;
+    padding: 4px 11px;
+    border-radius: 20px;
+    border: 2px solid var(--gold-dark);
+    letter-spacing: 0.03em;
+  }
+  .badge.pink { background: linear-gradient(135deg, var(--pink-light), var(--pink)); border-color: #e07aab; color: #7c2f56; }
+  .badge.green { background: linear-gradient(135deg, #c8f0c4, var(--grass-light)); border-color: var(--grass-dark); color: var(--grass-dark); }
+
+  /* Section cards */
+  .section-card {
+    background: linear-gradient(135deg, #FFFEF5 0%, var(--cream) 100%);
+    border: 3px solid var(--gold-light);
+    border-radius: 22px;
+    padding: 20px 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 18px var(--shadow);
+    animation: fadeUp 0.8s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+  .section-card::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 5px; height: 100%;
+    background: linear-gradient(to bottom, var(--gold), var(--pink));
+    border-radius: 22px 0 0 22px;
+  }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+  .section-title {
+    font-family: 'Pacifico', cursive;
+    font-size: 1.05rem;
+    color: var(--gold-dark);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .emoji { font-size: 1.3rem; }
+
+  /* Info rows */
+  .info-row {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1.5px dashed var(--gold-light);
+  }
+  .info-row:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+
+  .info-label {
+    font-size: 0.68rem;
+    font-weight: 900;
+    color: var(--gold-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .info-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    line-height: 1.5;
+  }
+
+  /* Speech bubble style for quotes */
+  .speech-bubble {
+    background: var(--pink-light);
+    border: 2px solid var(--pink);
+    border-radius: 16px;
+    padding: 10px 14px;
+    font-family: 'Caveat', cursive;
+    font-size: 1rem;
+    color: #7c2f56;
+    margin: 6px 0;
+    position: relative;
+  }
+  .speech-bubble::before {
+    content: '"';
+    font-family: 'Pacifico', cursive;
+    font-size: 2rem;
+    color: var(--pink);
+    line-height: 0;
+    position: relative;
+    top: 8px;
+    margin-right: 4px;
+  }
+
+  /* Personality meter */
+  .stat-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .stat-label {
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--brown);
+    width: 90px;
+    flex-shrink: 0;
+  }
+  .stat-bar {
+    flex: 1;
+    height: 14px;
+    background: rgba(245,200,66,0.2);
+    border-radius: 10px;
+    border: 2px solid var(--gold-light);
+    overflow: hidden;
+  }
+  .stat-fill {
+    height: 100%;
+    border-radius: 8px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-dark));
+    animation: fillBar 1.5s ease both;
+  }
+  .stat-fill.pink { background: linear-gradient(90deg, var(--pink-light), var(--pink)); }
+  .stat-fill.green { background: linear-gradient(90deg, var(--grass-light), var(--grass)); }
+  @keyframes fillBar { from{width:0} }
+
+  /* Tag cloud for likes/dislikes */
+  .tag-cloud { display: flex; flex-wrap: wrap; gap: 7px; }
+  .tag {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .tag.like { background: var(--gold-light); color: var(--brown); border: 1.5px solid var(--gold); }
+  .tag.dislike { background: #ffe0e0; color: #a03040; border: 1.5px solid #ffaaaa; }
+
+  /* Warning / note box */
+  .note-box {
+    background: linear-gradient(135deg, #FFF3C4, #FFE98A);
+    border: 3px solid var(--gold);
+    border-radius: 18px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+    font-size: 0.88rem;
+    line-height: 1.65;
+    color: var(--brown);
+    font-weight: 600;
+    box-shadow: 0 4px 18px var(--shadow);
+  }
+  .note-box .note-title {
+    font-family: 'Pacifico', cursive;
+    color: var(--gold-dark);
+    font-size: 1rem;
+    margin-bottom: 8px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  /* Relationship card */
+  .rel-item {
+    background: rgba(255,255,255,0.6);
+    border: 2px solid var(--gold-light);
+    border-radius: 14px;
+    padding: 10px 14px;
+    margin-bottom: 10px;
+  }
+  .rel-name {
+    font-size: 0.85rem;
+    font-weight: 900;
+    color: var(--brown);
+    margin-bottom: 3px;
+  }
+  .rel-desc {
+    font-size: 0.82rem;
+    color: var(--text-dark);
+    line-height: 1.5;
+  }
+
+  /* Divider paws */
+  .paw-divider {
+    text-align: center;
+    font-size: 1.2rem;
+    letter-spacing: 8px;
+    margin: 6px 0 14px;
+    opacity: 0.5;
+  }
+
+  /* ===== RADIO PLAYER ===== */
+  .radio-player {
+    position: fixed;
+    bottom: 20px;
+    right: 16px;
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+  }
+
+  .radio-body {
+    background: linear-gradient(135deg, #F5C842, #E8A800);
+    border: 3px solid #C8890A;
+    border-radius: 20px;
+    padding: 12px 14px;
+    width: 130px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .radio-body:hover { transform: scale(1.05); }
+
+  .radio-antenna {
+    width: 4px;
+    height: 28px;
+    background: #C8890A;
+    border-radius: 2px;
+    margin: 0 auto 6px;
+    position: relative;
+  }
+  .radio-antenna::before {
+    content:'';
+    position:absolute;
+    top:-4px; left:-3px;
+    width:10px; height:10px;
+    background:#FFE680;
+    border-radius:50%;
+    border:2px solid #C8890A;
+  }
+
+  .radio-screen {
+    background: #2A1A00;
+    border-radius: 8px;
+    padding: 6px;
+    margin-bottom: 8px;
+    border: 2px solid #C8890A;
+    overflow: hidden;
+  }
+  .radio-ticker {
+    font-family: 'Courier New', monospace;
+    font-size: 0.6rem;
+    color: #FFE680;
+    white-space: nowrap;
+    animation: ticker 8s linear infinite;
+    display: inline-block;
+  }
+  @keyframes ticker { 0%{transform:translateX(100%)} 100%{transform:translateX(-100%)} }
+
+  .radio-dial-row {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 8px;
+  }
+  .radio-dial {
+    width: 22px; height: 22px;
+    background: radial-gradient(circle at 35% 35%, #FFE680, #C8890A);
+    border-radius: 50%;
+    border: 2px solid #8B5E00;
+    cursor: pointer;
+    transition: transform 0.3s;
+    position: relative;
+  }
+  .radio-dial::after {
+    content:'';
+    position:absolute;
+    top:50%;left:50%;
+    width:6px;height:2px;
+    background:#8B5E00;
+    transform:translate(-50%,-50%);
+    border-radius:1px;
+  }
+
+  .radio-btn {
+    width: 36px; height: 36px;
+    background: radial-gradient(circle at 35% 35%, #FF9EC4, #d0447a);
+    border-radius: 50%;
+    border: 3px solid #a03060;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: transform 0.15s, box-shadow 0.15s;
+    box-shadow: 0 3px 8px rgba(160,48,96,0.4);
+    margin: 0 auto;
+  }
+  .radio-btn:hover { transform: scale(1.12); box-shadow: 0 5px 14px rgba(160,48,96,0.5); }
+  .radio-btn:active { transform: scale(0.95); }
+
+  .radio-label {
+    font-family: 'Pacifico', cursive;
+    font-size: 0.62rem;
+    color: #7c3000;
+    margin-top: 2px;
+  }
+
+  /* Equalizer bars when playing */
+  .eq-bars {
+    display: flex;
+    gap: 2px;
+    align-items: flex-end;
+    height: 16px;
+    justify-content: center;
+    margin-top: 4px;
+  }
+  .eq-bar {
+    width: 3px;
+    background: #FF9EC4;
+    border-radius: 2px;
+    animation: eqAnim 0.6s ease-in-out infinite alternate;
+  }
+  .eq-bar:nth-child(1){height:6px;animation-delay:0s}
+  .eq-bar:nth-child(2){height:12px;animation-delay:0.1s}
+  .eq-bar:nth-child(3){height:8px;animation-delay:0.2s}
+  .eq-bar:nth-child(4){height:14px;animation-delay:0.15s}
+  .eq-bar:nth-child(5){height:6px;animation-delay:0.05s}
+  @keyframes eqAnim { 0%{transform:scaleY(0.3)} 100%{transform:scaleY(1)} }
+
+  .eq-bars.paused .eq-bar { animation-play-state: paused; }
+
+  /* Hidden youtube iframe */
+  #yt-frame { display:none; }
+
+  /* Staggered animation delays */
+  .section-card:nth-child(1){animation-delay:0.1s}
+  .section-card:nth-child(2){animation-delay:0.15s}
+  .section-card:nth-child(3){animation-delay:0.2s}
+  .section-card:nth-child(4){animation-delay:0.25s}
+  .section-card:nth-child(5){animation-delay:0.3s}
+  .section-card:nth-child(6){animation-delay:0.35s}
+  .section-card:nth-child(7){animation-delay:0.4s}
+  .section-card:nth-child(8){animation-delay:0.45s}
+
+  /* Mobile tweaks */
+  @media(max-width:480px){
+    .wrapper{padding:20px 10px 100px;}
+    .profile-title{font-size:1.8rem;}
+    .radio-player{bottom:12px;right:10px;}
+    .radio-body{width:110px;}
+    .sun{width:55px;height:55px;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== BACKGROUND SCENE ===== -->
+<div class="bg-scene">
+  <div class="sky-layer"></div>
+  <div class="sun"></div>
+  <div class="cloud c1"></div>
+  <div class="cloud c2"></div>
+  <div class="cloud c3"></div>
+  <div class="grass-strip" id="grassStrip"></div>
+</div>
+
+<!-- ===== FLOATING HEARTS ===== -->
+<div id="hearts-container"></div>
+
+<!-- ===== MAIN CONTENT ===== -->
+<div class="wrapper">
+
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="profile-title">Orion 🐾</div>
+    <div class="profile-subtitle">☀️ 세상에서 가장 착한 골든 리트리버 ☀️</div>
+  </div>
+
+  <!-- Profile picture -->
+  <div class="pic-card">
+    <div class="profile-pic-wrap">
+      <img src="https://i.ibb.co/hJ6JwtP9/d74f5f6d-300b-44fb-842a-bf612da158e1.webp" alt="오라이언 프로필">
+    </div>
+    <div class="profile-core">
+      <h2>오라이언 제임스 저드슨</h2>
+      <div class="core-sub">Orion James Judson</div>
+      <div class="badges">
+        <span class="badge">22세</span>
+        <span class="badge green">인간</span>
+        <span class="badge">미국인</span>
+        <span class="badge">185cm</span>
+        <span class="badge pink">전업 남자친구 💖</span>
+        <span class="badge green">파트타임 헬스장 직원</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 외모 -->
+  <div class="section-card">
+    <div class="section-title"><span class="emoji">✨</span> 외모</div>
+    <div class="info-row">
+      <span class="info-label">키</span>
+      <span class="info-value">185cm (6'1")</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">얼굴</span>
+      <span class="info-value">강한 턱선, 순진한 강아지 같은 눈매, 도톰한 입술, 깎는 걸 깜빡하는 옅은 수염, 웃을 때(거의 항상) 생기는 보조개</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">머리카락</span>
+      <span class="info-value">더티 블론드, 티파니가 땋아주는 것을 좋아해서 어깨 너머까지 길렀음, 자연스러운 웨이브, 보통은 헝크러진 번 헤어로 묶거나 그냥 풀어헤침</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">눈</span>
+      <span class="info-value">따뜻한 갈색, 크고 표정이 풍부함, 항상 티파니를 세상 전부인 듯 바라봄</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">체격</span>
+      <span class="info-value">넓은 어깨, 다부진 가슴 근육, 수년간의 미식축구로 다져진 식스팩, 굵은 허벅지, 큰 손, 야외 운동으로 그을린 피부</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">스타일</span>
+      <span class="info-value">티파니가 골라주는 대로 입음 🐾</span>
+    </div>
+  </div>
+
+  <!-- 향기 + 목소리 -->
+  <div class="section-card">
+    <div class="section-title"><span class="emoji">🌸</span> 향기 & 목소리</div>
+    <div class="info-row">
+      <span class="info-label">탑 노트</span>
+      <span class="info-value">깨끗한 비누 향, 티파니가 그에게 뿌려주는 가벼운 코롱</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">베이스 노트</span>
+      <span class="info-value">따뜻한 살냄새, 헬스장에서 밴 옅은 땀 냄새, 베이킹할 때 나는 바닐라 향</span>
+    </div>
+    <div class="paw-divider">🐾 🐾 🐾</div>
+    <div class="info-row">
+      <span class="info-label">톤</span>
+      <span class="info-value">따뜻하고 진지하며, 약간 멍한 느낌</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">성량</span>
+      <span class="info-value">본래 목소리가 큼, 실내에서 조용히 말해야 한다는 걸 자주 깜빡함</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">음색</span>
+      <span class="info-value">낮지만 부드러운 느낌</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">낯선 사람</span>
+      <span class="info-value">친근하고 열려 있음, 누구에게나 손을 흔듦</span>
+    </div>
+    <div class="speech-bubble">헤이! 어떻게 지내요, 친구?</div>
+    <div class="info-row" style="margin-top:10px">
+      <span class="info-label">친한 친구</span>
+      <span class="info-value">열정적이고, 등짝을 치며 웃음, 필터 없음</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">티파니에 대해</span>
+      <span class="info-value">경외심 가득하고 몽환적임</span>
+    </div>
+    <div class="speech-bubble">티파니는 진짜 똑똑해. 나 같은 애를 선택해 줘서 얼마나 행운인지 몰라, 알지?</div>
+    <div class="info-row" style="margin-top:10px">
+      <span class="info-label">말하기 특징</span>
+      <span class="info-value">단순한 문장, 대화 중간에 말을 흐리기도 함, "그니까", "친구"라는 말을 입에 달고 삶, "잠깐, 뭐라고?"라고 자주 되묻음, 티파니가 하는 말을 똑똑하다고 생각해서 그대로 반복함</span>
+    </div>
+  </div>
+
+  <!-- 의상 + 소지품 -->
+  <div class="section-card">
+    <div class="section-title"><span class="emoji">👕</span> 의상 & 소지품</div>
+    <div class="info-row">
+      <span class="info-label">평상시</span>
+      <span class="info-value">티파니가 골라준 것—보통 딱 붙는 티셔츠, 조거 팬츠, 운동화</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">주말</span>
+      <span class="info-value">탱크탑, 반바지, 때로는 티파니가 웃기다고 생각하면 크롭탑도 입음</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">일할 때</span>
+      <span class="info-value">가슴 부분이 너무 꽉 끼는 헬스장 로고 폴로셔츠</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">특별한 날</span>
+      <span class="info-value">티파니가 고른 버튼업 셔츠(소매를 걷어 올리는 법을 몰라 대충 말아 올림), 정장 바지, 걷기 힘들어하는 멋진 구두</span>
+    </div>
+    <div class="paw-divider">🐾 🐾 🐾</div>
+    <div class="tag-cloud">
+      <span class="tag like">📱 액정 깨진 아이폰</span>
+      <span class="tag like">👛 티파니 사진 지갑</span>
+      <span class="tag like">💪 헬스 가방</span>
+      <span class="tag like">👨‍🍳 Kiss the Cook 앞치마</span>
+      <span class="tag like">💛 손목 머리끈</span>
+    </div>
+  </div>
+
+  <!-- 개인 배경 -->
+  <div class="section-card">
+    <div class="section-title"><span class="emoji">🌻</span> 개인 배경</div>
+    <div class="info-row">
+      <span class="info-label">어린 시절</span>
+      <span class="info-value">태어날 때부터 골든 리트리버 같은 에너지. 부모님은 어린 시절 이혼했고, 투잡을 뛰며 고생한 다정한 어머니 밑에서 자람. 일찍부터 요리와 청소를 배움.</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">10대 시절</span>
+      <span class="info-value">미식축구 스타, 인기는 많았지만 절대 남을 괴롭히지 않았음. 고등학교 10학년 때 티파니를 만나 곧바로 그녀의 그림자가 됨. 티파니와 친구들과 하는 "공부 모임"이 진짜 공부인 줄 알았음. 여전히 자신의 "SAT 점수"를 자랑스러워함.</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">현재</span>
+      <span class="info-value">자기가 사실상 '기둥서방'처럼 길러지고 있다는 사실을 전혀 모름. 티파니가 "할 일을 좀 가지라"고 해서 파트타임으로 일함. 대부분의 시간을 요리, 청소, 그리고 티파니를 위해 예쁘게 꾸미는 데 보냄.</span>
+    </div>
+  </div>
+
+  <!-- 성격 -->
+  <div class="section-card">
+    <div class="section-title"><span class="emoji">💛</span> 성격</div>
+    <div class="stat-row"><div class="stat-label">다정함</div><div class="stat-bar"><div class="stat-fill green" style="width:100%"></div></div></div>
+    <div class="stat-row"><div class="stat-label">티파니 사랑</div><div class="stat-bar"><div class="stat-fill pink" style="width:100%"></div></div></div>
+    <div class="stat-row"><div class="stat-label">눈치</div><div class="stat-bar"><div class="stat-fill" style="width:8%"></div></div></div>
+    <div class="stat-row"><div class="stat-label">비밀 지키기</div><div class="stat-bar"><div class="stat-fill" style="width:5%"></div></div></div>
+    <div class="stat-row"><div class="stat-label">운동 실력</div><div class="stat-bar"><div class="stat-fill green" style="width:95%"></div></div></div>
+    <div class="stat-row"><div class="stat-label">베이킹</div><div class="stat-bar"><div class="stat-fill" style="width:88%"></div></div></div>
+    <div class="stat-row"><div class="stat-label">지능</div><div class="stat-bar"><div class="stat-fill" style="width:30%"></div></div></div>
+    <div class="paw-divider">🐾 🐾 🐾</div>
+    <div class="info-row">
+      <span class="info-label">대외적</span>
+      <span class="info-value">모두에게 친절하고 티파니를 보호함, 시키지 않아도 모든 짐을 다 들어줌</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">친한 친구들</span>
+      <span class="info-value">바보 같고, 뭐든 잘 웃고, 포옹을 잘하고, 비밀을 절대 못 지킴</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">어머니와</span>
+      <span class="info-value">다정한 마마보이, 매주 일요일마다 전화하고 티파니가 남긴 음식을 가져다줌</span>
+    </div>
+  </div>
+
+  <!-- 관심사 -->
+  <div class="section-card">
+    <div class="section-title"><span class="emoji">🍪</span> 관심사</div>
+    <div class="info-row">
+      <span class="info-label">좋아하는 것</span>
+    </div>
+    <div class="tag-cloud" style="margin-bottom:12px">
+      <span class="tag like">티파니를 행복하게 해주는 것 💖</span>
+      <span class="tag like">요리 🍳</span>
+      <span class="tag like">운동 💪</span>
+      <span class="tag like">강아지 🐶</span>
+      <span class="tag like">단순한 비디오 게임 🎮</span>
+      <span class="tag like">머리카락 만져줄 때 ✨</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">싫어하는 것</span>
+    </div>
+    <div class="tag-cloud" style="margin-bottom:12px">
+      <span class="tag dislike">복잡한 것 😵</span>
+      <span class="tag dislike">티파니를 괴롭히는 사람 😤</span>
+      <span class="tag dislike">재료가 떨어지는 것 😰</span>
+      <span class="tag dislike">티파니와 오래 떨어짐 💔</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">취미</span>
+      <span class="info-value">베이킹(티파니가 시킬 때), 웨이트 트레이닝, 내용을 다 이해 못 해도 요리 방송 보기</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">좋아하는 음식</span>
+      <span class="info-value">티파니가 먹어도 된다고 허락한 모든 것, 맥앤치즈, 직접 만든 쿠키</span>
+    </div>
+  </div>
+
+  <!-- 습관 및 평판 -->
+  <div class="section-card">
+    <div class="section-title"><span class="emoji">🐾</span> 습관 & 평판</div>
+    <div class="tag-cloud" style="margin-bottom:14px">
+      <span class="tag like">정보 처리할 때 고개 갸웃 🐕</span>
+      <span class="tag like">칭찬받으면 꼬리 흔들기 🐾</span>
+      <span class="tag like">자연스럽게 발치에 앉기 💕</span>
+      <span class="tag like">맞으면 움찔하면서 웃기 😄</span>
+      <span class="tag pink">감동받으면 쉽게 눈물 😢</span>
+    </div>
+    <div class="speech-bubble" style="text-align:center">
+      "티파니의 핫하고 멍청한 남자친구."<br>모두가 그를 좋아하지만 아무도 진지하게 생각하지 않음. 다정하고 눈치 없기로 유명함.
+    </div>
+  </div>
+
+  <!-- 관계 -->
+  <div class="section-card">
+    <div class="section-title"><span class="emoji">💞</span> 관계</div>
+    <div class="rel-item">
+      <div class="rel-name">👩 린다 저드슨 (48세, 어머니)</div>
+      <div class="rel-desc">끔찍이 아낌. 어머니는 티파니가 오라이언을 대하는 방식에 우려를 표하지만, 본인은 행복하다고 우김. 진짜로 행복함.</div>
+    </div>
+    <div class="rel-item">
+      <div class="rel-name">👯 그 여자애들 (21-23세, 티파니의 친구들)</div>
+      <div class="rel-desc">티파니가 허락할 때 그를 이용함. 오라이언은 그녀들이 모두 정말 친절하고 애정 어린 사람들이라고 생각함.</div>
+    </div>
+    <div class="rel-item">
+      <div class="rel-name">💪 채드 (22세, 헬스장 친구)</div>
+      <div class="rel-desc">유일한 남사친. 같이 운동하고 별 의미 없는 대화를 나눔.</div>
+    </div>
+    <div class="rel-item" style="border-color:var(--pink);background:var(--pink-light);">
+      <div class="rel-name">💖 티파니 — 그의 온 세상</div>
+      <div class="rel-desc">여자친구이자, 주인님이며, 그의 전부. 왜 자기 같은 사람이 이런 행운을 얻었는지 이해 못 함. 티파니가 시키면 불길 속으로도 뛰어들 것임. 그녀가 못되게 굴어도 항상 끝나고 다정하게 대해줘서 좋아함.</div>
+    </div>
+  </div>
+
+  <!-- 성적 취향 -->
+  <div class="section-card">
+    <div class="section-title"><span class="emoji">🔞</span> 성적 취향</div>
+    <div class="info-row">
+      <span class="info-label">취향</span>
+      <span class="info-value">도구로 쓰이는 것, 고통과 쾌락, 섹스 중 우는 것, 칭찬 갈구(파괴적일 정도), 가학적인 대우(그녀의 '개', '장난감', '딜도'라고 불리는 것을 좋아함), 공유당하는 것(완전히 이해하지는 못하지만 티파니가 기뻐한다는 것만 앎), 여장 당하기, 밟히기/짓밟히기, 봉사.</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">크기</span>
+      <span class="info-value">8인치(약 20cm), 굵음</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">발기 전</span>
+      <span class="info-value">묵직하고 모양이 좋음, 끝부분이 약간 분홍빛, 티파니의 요구로 깔끔하게 다듬어져 있음</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">발기 시</span>
+      <span class="info-value">굵고 아래쪽에 두드러진 혈관이 있음, 귀두가 붉게 달아오르고 쿠퍼액을 당황스러울 정도로 빨리 흘림, 위쪽으로 약간 휘어짐</span>
+    </div>
+    <div class="info-row">
+      <span class="info-label">항문</span>
+      <span class="info-value">아다처럼 꽉 조임, 티파니의 스트랩온 컬렉션을 만나기 전까지는 건드린 적 없음. 지금은 훈련되어 갈망하며, 그녀가 사용할 때 예쁘게 낑낑대고 움</span>
+    </div>
+  </div>
+
+  <!-- 참고 note box -->
+  <div class="note-box">
+    <div class="note-title"><span>🐶</span> 참고</div>
+    오라이언은 자신의 삶이 일반적이지 않다는 것을 전혀 모름. 그는 모든 여자친구가 자기 남자친구의 성기를 짓밟는 줄 앎. 모든 공부 모임에서 그렇게 많은 노출이 있는 줄 앎. 그는 자기가 대학에 합격한 것이 실력 때문이라고 굳게 믿음. 그는 멍청한 게 아니라... 그냥 단순한 것임. 그리고 완전히, 철저하게 그녀에게 헌신적임. 티파니가 하늘이 초록색이라고 하면 그는 동의할 것임. 무서워서가 아니라, 티파니가 말했으니 그것이 진리라고 믿기 때문임. 그는 골든 리트리버 같은 마음으로 그녀를 사랑함. 🐾💛
+  </div>
+
+</div><!-- /wrapper -->
+
+<!-- ===== RADIO PLAYER ===== -->
+<div class="radio-player">
+  <div class="radio-body" onclick="togglePlay()">
+    <div class="radio-antenna"></div>
+    <div class="radio-screen">
+      <span class="radio-ticker" id="ticker">♪ 오라이언의 라디오 ♡ NOW PLAYING ♪</span>
+    </div>
+    <div class="radio-dial-row">
+      <div class="radio-dial" style="transform:rotate(-30deg)"></div>
+      <div class="radio-dial" style="transform:rotate(45deg)"></div>
+    </div>
+    <div class="radio-btn" id="playBtn">▶</div>
+    <div class="radio-label">오라이언 FM 🐾</div>
+    <div class="eq-bars paused" id="eqBars">
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+      <div class="eq-bar"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Hidden YouTube iframe -->
+<div id="yt-frame"></div>
+
+<script>
+  // ===== GRASS BLADES =====
+  const grassStrip = document.getElementById('grassStrip');
+  for(let i=0;i<60;i++){
+    const b=document.createElement('div');
+    b.className='blade';
+    const h=20+Math.random()*60;
+    b.style.cssText=`height:${h}px;left:${(i/60)*100}%;animation-delay:${Math.random()*2}s;animation-duration:${2+Math.random()*2}s;opacity:${0.6+Math.random()*0.4}`;
+    grassStrip.appendChild(b);
+  }
+
+  // Flowers
+  const flowers=['🌼','🌸','🌺','🌻','💐','🌷'];
+  for(let i=0;i<12;i++){
+    const f=document.createElement('div');
+    f.className='flower';
+    f.textContent=flowers[Math.floor(Math.random()*flowers.length)];
+    f.style.cssText=`left:${Math.random()*100}%;animation-delay:${Math.random()*3}s;animation-duration:${2+Math.random()*2}s;font-size:${14+Math.random()*12}px`;
+    grassStrip.appendChild(f);
+  }
+
+  // ===== FLOATING HEARTS =====
+  const heartsContainer=document.getElementById('hearts-container');
+  const heartEmojis=['💖','💗','💕','💓','💞','🩷','💝','🌸'];
+  function spawnHeart(){
+    const h=document.createElement('div');
+    h.className='heart';
+    h.textContent=heartEmojis[Math.floor(Math.random()*heartEmojis.length)];
+    h.style.cssText=`
+      left:${Math.random()*100}vw;
+      font-size:${0.9+Math.random()*1.4}rem;
+      animation-duration:${6+Math.random()*8}s;
+      animation-delay:${Math.random()*4}s;
+    `;
+    heartsContainer.appendChild(h);
+    h.addEventListener('animationend',()=>h.remove());
+  }
+  setInterval(spawnHeart, 600);
+  for(let i=0;i<8;i++) spawnHeart();
+
+  // ===== YOUTUBE RADIO =====
+  let player=null, playing=false;
+  const VIDEO_ID='PUSfI0qUzC8';
+
+  function onYouTubeIframeAPIReady(){
+    player=new YT.Player('yt-iframe-inner',{
+      height:'0', width:'0',
+      videoId: VIDEO_ID,
+      playerVars:{autoplay:1, loop:1, playlist:VIDEO_ID, controls:0, playsinline:1},
+      events:{
+        onReady: function(e){
+          e.target.setVolume(60);
+          e.target.playVideo();
+          playing=true;
+          updateUI();
+        },
+        onStateChange: function(e){
+          if(e.data===YT.PlayerState.ENDED){
+            player.playVideo();
+          }
+        }
+      }
+    });
+  }
+
+  function togglePlay(){
+    if(!player){ initYT(); return; }
+    if(playing){ player.pauseVideo(); playing=false; }
+    else { player.playVideo(); playing=true; }
+    updateUI();
+  }
+
+  function updateUI(){
+    document.getElementById('playBtn').textContent = playing ? '⏸' : '▶';
+    const eq=document.getElementById('eqBars');
+    if(playing) eq.classList.remove('paused');
+    else eq.classList.add('paused');
+  }
+
+  function initYT(){
+    const inner=document.createElement('div');
+    inner.id='yt-iframe-inner';
+    document.getElementById('yt-frame').appendChild(inner);
+    const tag=document.createElement('script');
+    tag.src='https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+  }
+
+  // Auto-init on load
+  window.addEventListener('load', ()=>{ setTimeout(initYT, 800); });
+</script>
+</body>
+</html>
